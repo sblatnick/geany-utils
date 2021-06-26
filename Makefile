@@ -1,9 +1,14 @@
 CC=gcc
+PLUGINS   = $(wildcard *.c)
+TARGETS   = $(patsubst %.c, %, $(PLUGINS))
 
-all:
-	$(CC) -c quick-opener.c -fPIC -Wwrite-strings `pkg-config --cflags geany`
-	$(CC) quick-opener.o -o quick-opener.so -shared `pkg-config --libs geany`
+list:
+	@ls -1 *.c | sed 's/\.c$$//'
+$(TARGETS):
+	@echo "Building $@"
+	$(CC) -c $@.c -fPIC -Wwrite-strings `pkg-config --cflags geany`
+	$(CC) $@.o -o $@.so -shared `pkg-config --libs geany`
 install:
-	cp quick-opener.so ~/.config/geany/plugins/
+	cp *.so ~/.config/geany/plugins/
 clean:
 	rm -f *.o *.so
