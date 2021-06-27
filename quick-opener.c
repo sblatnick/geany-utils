@@ -2,6 +2,7 @@
 #include <geany.h>
 
 GeanyData *geany_data;
+GeanyPlugin *geany_plugin;
 
 static GtkWidget *dialog, *scrollable, *tree, *button_folder_picker;
 static GtkTreeStore *list;
@@ -163,9 +164,9 @@ static void quick_opener()
   GtkCellRenderer *renderLeft, *renderRight;
 
   dialog = gtk_dialog_new_with_buttons(_("Quick Open:"),
-    GTK_WINDOW(geany->main_widgets->window),
+    GTK_WINDOW(geany_plugin->geany_data->main_widgets->window),
     GTK_DIALOG_DESTROY_WITH_PARENT,NULL);
-  gtk_window_set_default_size(GTK_WINDOW(dialog), 500, 250);
+  gtk_window_set_default_size(GTK_WINDOW(dialog), 600, 350);
 
   gtk_dialog_add_button(GTK_DIALOG(dialog),_("_Open"), GTK_RESPONSE_APPLY);
   gtk_dialog_add_button(GTK_DIALOG(dialog),_("_Cancel"), GTK_RESPONSE_CANCEL);
@@ -233,7 +234,7 @@ static void quick_opener()
 
 static void quick_project_open()
 {
-  GeanyProject *project = geany->app->project;
+  GeanyProject *project = geany_plugin->geany_data->app->project;
   //TODO: check if the keypress was used for custom directory or normal
   if(project) {
     base_directory = project->base_path;
@@ -276,8 +277,9 @@ static void setup_regex()
   nameRegexSetting.regex = g_regex_new(nameRegexSetting.text, G_REGEX_OPTIMIZE | G_REGEX_CASELESS, 0, NULL);
 }
 
-static gboolean init(GeanyPlugin *geany_plugin, gpointer pdata)
+static gboolean init(GeanyPlugin *plugin, gpointer pdata)
 {
+  geany_plugin = plugin;
   home = g_getenv("HOME");
   if (!home) {
     home = g_get_home_dir();
