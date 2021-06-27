@@ -280,7 +280,7 @@ gint mark_all(GeanyDocument *doc, const gchar *search_text, gint indicator)
   return count;
 }
 
-gboolean editor_notify_cb(GObject *object, GeanyEditor *editor, SCNotification *nt, gpointer data)
+static gboolean editor_notify_cb(GObject *object, GeanyEditor *editor, SCNotification *nt, gpointer data)
 {
   if (nt->updated & SC_UPDATE_SELECTION && sci_has_selection(editor->sci)) {
     if(skip) {
@@ -296,7 +296,7 @@ gboolean editor_notify_cb(GObject *object, GeanyEditor *editor, SCNotification *
   return FALSE;
 }
 
-PluginCallback plugin_callbacks[] = {
+static PluginCallback select_callbacks[] = {
   {"editor-notify", (GCallback) &editor_notify_cb, TRUE, NULL},
   { NULL, NULL, FALSE, NULL }
 };
@@ -311,6 +311,7 @@ void geany_load_module(GeanyPlugin *plugin)
   plugin->info->author = "Steven Blatnick <steve8track@yahoo.com>";
   plugin->funcs->init = init;
   plugin->funcs->cleanup = cleanup;
+  plugin->funcs->callbacks = select_callbacks;
   GEANY_PLUGIN_REGISTER(plugin, 225);
 }
 
