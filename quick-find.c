@@ -393,5 +393,6 @@ void geany_load_module(GeanyPlugin *plugin)
   plugin->info->author = "Steven Blatnick <steve8track@yahoo.com>";
   plugin->funcs->init = init;
   plugin->funcs->cleanup = cleanup;
+  plugin->funcs->configure = configure;
   GEANY_PLUGIN_REGISTER(plugin, 225);
 }
