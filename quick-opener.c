@@ -282,8 +282,7 @@ static gboolean init(GeanyPlugin *geany_plugin, gpointer pdata)
   if (!home) {
     home = g_get_home_dir();
   }
-
-  conf = g_build_path(G_DIR_SEPARATOR_S, geany_data->app->configdir, "plugins", "quick-opener.conf", NULL);
+  conf = g_build_path(G_DIR_SEPARATOR_S, geany_plugin->geany_data->app->configdir, "plugins", "quick-opener.conf", NULL);
   config = g_key_file_new();
   g_key_file_load_from_file(config, conf, G_KEY_FILE_NONE, NULL);
   include_path = utils_get_setting_boolean(config, "main", "include-path", include_path);
@@ -302,13 +301,15 @@ static gboolean init(GeanyPlugin *geany_plugin, gpointer pdata)
 
   quick_open_project_menu = gtk_menu_item_new_with_mnemonic("Quick Open Project Files...");
   gtk_widget_show(quick_open_project_menu);
-  gtk_container_add(GTK_CONTAINER(geany->main_widgets->tools_menu), quick_open_project_menu);
+  gtk_container_add(GTK_CONTAINER(geany_plugin->geany_data->main_widgets->tools_menu), quick_open_project_menu);
   g_signal_connect(quick_open_project_menu, "activate", G_CALLBACK(quick_open_project_menu_callback), NULL);
 
   quick_open_menu = gtk_menu_item_new_with_mnemonic("Quick Open...");
   gtk_widget_show(quick_open_menu);
-  gtk_container_add(GTK_CONTAINER(geany->main_widgets->tools_menu), quick_open_menu);
+  gtk_container_add(GTK_CONTAINER(geany_plugin->geany_data->main_widgets->tools_menu), quick_open_menu);
   g_signal_connect(quick_open_menu, "activate", G_CALLBACK(quick_open_menu_callback), NULL);
+
+  return TRUE;
 }
 
 static void dialog_response(GtkDialog *configure, gint response, gpointer user_data)
