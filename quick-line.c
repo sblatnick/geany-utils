@@ -114,7 +114,7 @@ static void cleanup(GeanyPlugin *plugin, gpointer pdata)
 G_MODULE_EXPORT
 void geany_load_module(GeanyPlugin *plugin)
 {
-  main_locale_init("share/locale", "quick-search");
+  main_locale_init("share/locale", "quick-line");
   plugin->info->name = _("Quick Line");
   plugin->info->description = _("Quickly go to the line entered.");
   plugin->info->version = "0.2";
