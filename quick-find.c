@@ -18,7 +18,7 @@ static GtkWidget *treebrowser_entry = NULL;
 const gchar *conf;
 gchar *executable;
 static GKeyFile *config;
-const gchar *DEFAULT_EXECUTABLE = "/usr/bin/ack-grep";
+const gchar *DEFAULT_EXECUTABLE = "/usr/bin/ag";
 GtkWidget *executable_entry;
 
 enum
@@ -46,19 +46,19 @@ static GtkWidget* find_entry(GtkContainer *container)
 
 static void get_path()
 {
-  if(first_run == 1) {
-    for(gint i = 0; i < gtk_notebook_get_n_pages(GTK_NOTEBOOK(geany_plugin->geany_data->main_widgets->sidebar_notebook)); i++) {
-      GtkWidget *page;
-      const gchar *page_name;
+  //~ if(first_run == 1) {
+    //~ for(gint i = 0; i < gtk_notebook_get_n_pages(GTK_NOTEBOOK(geany_plugin->geany_data->main_widgets->sidebar_notebook)); i++) {
+      //~ GtkWidget *page;
+      //~ const gchar *page_name;
 
-      page = gtk_notebook_get_nth_page(GTK_NOTEBOOK(geany_plugin->geany_data->main_widgets->sidebar_notebook), i);
-      page_name = gtk_notebook_get_tab_label_text(GTK_NOTEBOOK(geany_plugin->geany_data->main_widgets->sidebar_notebook), page);
-      if(page_name && strcmp(page_name, "Tree Browser") == 0) {
-        treebrowser_entry = find_entry(GTK_CONTAINER(page));
-        break;
-      }
-    }
-  }
+      //~ page = gtk_notebook_get_nth_page(GTK_NOTEBOOK(geany_plugin->geany_data->main_widgets->sidebar_notebook), i);
+      //~ page_name = gtk_notebook_get_tab_label_text(GTK_NOTEBOOK(geany_plugin->geany_data->main_widgets->sidebar_notebook), page);
+      //~ if(page_name && strcmp(page_name, "Tree Browser") == 0) {
+        //~ treebrowser_entry = find_entry(GTK_CONTAINER(page));
+        //~ break;
+      //~ }
+    //~ }
+  //~ }
   
   if(treebrowser_entry == NULL) {
     GeanyProject *project = geany_plugin->geany_data->app->project;
