@@ -76,10 +76,6 @@ static gboolean init(GeanyPlugin *plugin, gpointer pdata)
   gtk_widget_realize(geany_plugin->geany_data->main_widgets->window);
   GtkRequisition wmin, wnat;
   gtk_widget_get_preferred_size(GTK_WIDGET(geany_plugin->geany_data->main_widgets->window), &wmin, &wnat);
-  printf("wnat width: %d\n", wnat.width);
-  printf("min width: %d\n", wmin.width);
-  printf("nat height: %d\n", wnat.height);
-  printf("min height: %d\n", wmin.height);
 
   gtk_paned_set_position(GTK_PANED(hpaned), wnat.width - 250);
   
