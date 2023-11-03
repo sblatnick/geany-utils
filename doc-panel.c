@@ -18,27 +18,44 @@ enum
 
 static void next_focus(G_GNUC_UNUSED guint key_id)
 {
-  GtkTreeIter iter;
-  if (gtk_tree_selection_get_selected(gtk_tree_view_get_selection(GTK_TREE_VIEW(tree)), NULL, &iter))
+  GtkTreeIter selected, next, parent;
+  if (gtk_tree_selection_get_selected(gtk_tree_view_get_selection(GTK_TREE_VIEW(tree)), NULL, &selected))
   {
-    if(gtk_tree_model_iter_next(model, &iter))
+    next = selected;
+    if(gtk_tree_model_iter_next(model, &next))
     {
-      gtk_tree_view_set_cursor(GTK_TREE_VIEW(tree), gtk_tree_model_get_path(model, &iter), NULL, FALSE);
+      gtk_tree_view_set_cursor(GTK_TREE_VIEW(tree), gtk_tree_model_get_path(model, &next), NULL, FALSE);
       g_signal_emit_by_name(tree, "row-activated");
+    }
+    else if(gtk_tree_model_iter_parent(model, &parent, &selected)) {
+      if(gtk_tree_model_iter_next(model, &parent)) {
+        if(gtk_tree_model_iter_children(model, &selected, &parent)) {
+          gtk_tree_view_set_cursor(GTK_TREE_VIEW(tree), gtk_tree_model_get_path(model, &selected), NULL, FALSE);
+          g_signal_emit_by_name(tree, "row-activated");
+        }
+      }
     }
   }
 }
 
 static void prev_focus(G_GNUC_UNUSED guint key_id)
 {
-  GtkTreeIter iter;
-
-  if (gtk_tree_selection_get_selected(gtk_tree_view_get_selection(GTK_TREE_VIEW(tree)), NULL, &iter))
+  GtkTreeIter selected, next, parent;
+  if (gtk_tree_selection_get_selected(gtk_tree_view_get_selection(GTK_TREE_VIEW(tree)), NULL, &selected))
   {
-    if(gtk_tree_model_iter_previous(model, &iter))
+    next = selected;
+    if(gtk_tree_model_iter_previous(model, &next))
     {
-      gtk_tree_view_set_cursor(GTK_TREE_VIEW(tree), gtk_tree_model_get_path(model, &iter), NULL, FALSE);
+      gtk_tree_view_set_cursor(GTK_TREE_VIEW(tree), gtk_tree_model_get_path(model, &next), NULL, FALSE);
       g_signal_emit_by_name(tree, "row-activated");
+    }
+    else if(gtk_tree_model_iter_parent(model, &parent, &selected)) {
+      if(gtk_tree_model_iter_previous(model, &parent)) {
+        if(gtk_tree_model_iter_nth_child(model, &selected, &parent, gtk_tree_model_iter_n_children(model, &parent) - 1)) {
+          gtk_tree_view_set_cursor(GTK_TREE_VIEW(tree), gtk_tree_model_get_path(model, &selected), NULL, FALSE);
+          g_signal_emit_by_name(tree, "row-activated");
+        }
+      }
     }
   }
 }
