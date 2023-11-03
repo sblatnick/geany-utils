@@ -16,6 +16,16 @@ enum
   KB_GROUP
 };
 
+static void go(GtkTreeIter selected)
+{
+  GeanyDocument *doc = NULL;
+  gtk_tree_model_get(model, &selected, 2, &doc, -1);
+  if(! doc) {
+    return;
+  }
+  editor_goto_pos(doc->editor, 0, FALSE);
+}
+
 static void next_focus(G_GNUC_UNUSED guint key_id)
 {
   GtkTreeIter selected, next, parent;
@@ -25,13 +35,13 @@ static void next_focus(G_GNUC_UNUSED guint key_id)
     if(gtk_tree_model_iter_next(model, &next))
     {
       gtk_tree_view_set_cursor(GTK_TREE_VIEW(tree), gtk_tree_model_get_path(model, &next), NULL, FALSE);
-      g_signal_emit_by_name(tree, "row-activated");
+      go(next);
     }
     else if(gtk_tree_model_iter_parent(model, &parent, &selected)) {
       if(gtk_tree_model_iter_next(model, &parent)) {
         if(gtk_tree_model_iter_children(model, &selected, &parent)) {
           gtk_tree_view_set_cursor(GTK_TREE_VIEW(tree), gtk_tree_model_get_path(model, &selected), NULL, FALSE);
-          g_signal_emit_by_name(tree, "row-activated");
+          go(selected);
         }
       }
     }
@@ -47,13 +57,13 @@ static void prev_focus(G_GNUC_UNUSED guint key_id)
     if(gtk_tree_model_iter_previous(model, &next))
     {
       gtk_tree_view_set_cursor(GTK_TREE_VIEW(tree), gtk_tree_model_get_path(model, &next), NULL, FALSE);
-      g_signal_emit_by_name(tree, "row-activated");
+      go(next);
     }
     else if(gtk_tree_model_iter_parent(model, &parent, &selected)) {
       if(gtk_tree_model_iter_previous(model, &parent)) {
         if(gtk_tree_model_iter_nth_child(model, &selected, &parent, gtk_tree_model_iter_n_children(model, &parent) - 1)) {
           gtk_tree_view_set_cursor(GTK_TREE_VIEW(tree), gtk_tree_model_get_path(model, &selected), NULL, FALSE);
-          g_signal_emit_by_name(tree, "row-activated");
+          go(selected);
         }
       }
     }
