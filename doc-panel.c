@@ -6,13 +6,50 @@
 GeanyPlugin *geany_plugin;
 GeanyData *geany_data;
 
-static GtkWidget *panel, *editor, *docs, *hpaned, *label;
+static GtkWidget *panel, *editor, *docs, *tree, *hpaned, *label;
+static GtkTreeModel *model;
+
+enum
+{
+  KB_DOC_PANEL_NEXT,
+  KB_DOC_PANEL_PREV,
+  KB_GROUP
+};
+
+static void next_focus(G_GNUC_UNUSED guint key_id)
+{
+  GtkTreeIter iter;
+  if (gtk_tree_selection_get_selected(gtk_tree_view_get_selection(GTK_TREE_VIEW(tree)), NULL, &iter))
+  {
+    if(gtk_tree_model_iter_next(model, &iter))
+    {
+      gtk_tree_view_set_cursor(GTK_TREE_VIEW(tree), gtk_tree_model_get_path(model, &iter), NULL, FALSE);
+      g_signal_emit_by_name(tree, "row-activated");
+    }
+  }
+}
+
+static void prev_focus(G_GNUC_UNUSED guint key_id)
+{
+  GtkTreeIter iter;
+
+  if (gtk_tree_selection_get_selected(gtk_tree_view_get_selection(GTK_TREE_VIEW(tree)), NULL, &iter))
+  {
+    if(gtk_tree_model_iter_previous(model, &iter))
+    {
+      gtk_tree_view_set_cursor(GTK_TREE_VIEW(tree), gtk_tree_model_get_path(model, &iter), NULL, FALSE);
+      g_signal_emit_by_name(tree, "row-activated");
+    }
+  }
+}
 
 static gboolean init(GeanyPlugin *plugin, gpointer pdata)
 {
   geany_plugin = plugin;
 
   docs = ui_lookup_widget(geany_plugin->geany_data->main_widgets->window, "scrolledwindow7");
+  tree = ui_lookup_widget(geany_plugin->geany_data->main_widgets->window, "treeview6");
+  model = gtk_tree_view_get_model(GTK_TREE_VIEW(tree));
   label = gtk_notebook_get_tab_label(
     GTK_NOTEBOOK(geany_plugin->geany_data->main_widgets->sidebar_notebook),
     docs
@@ -44,14 +81,12 @@ static gboolean init(GeanyPlugin *plugin, gpointer pdata)
   printf("nat height: %d\n", wnat.height);
   printf("min height: %d\n", wmin.height);
 
-  GtkRequisition smin, snat;
-  gtk_widget_get_preferred_size(GTK_WIDGET(geany_plugin->geany_data->main_widgets->sidebar_notebook), &smin, &snat);
-  printf("snat width: %d\n", snat.width);
-  printf("min width: %d\n", smin.width);
-  printf("nat height: %d\n", snat.height);
-  printf("min height: %d\n", smin.height);
-
   gtk_paned_set_position(GTK_PANED(hpaned), wnat.width - 250);
+  
+  GeanyKeyGroup *key_group;
+  key_group = plugin_set_key_group(geany_plugin, "quick_find_keyboard_shortcut", KB_GROUP, NULL);
+  keybindings_set_item(key_group, KB_DOC_PANEL_NEXT, next_focus, 0, 0, "doc_panel_next", _("Next Document"), NULL);
+  keybindings_set_item(key_group, KB_DOC_PANEL_PREV, prev_focus, 0, 0, "doc_panel_prev", _("Prev Document"), NULL);
 }
 
 

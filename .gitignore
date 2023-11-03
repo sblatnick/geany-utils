@@ -1,2 +1,6 @@
 *.o
 *.so
+filedefs
+geany.conf
+keybindings.conf
+templates
