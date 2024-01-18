@@ -27,18 +27,24 @@ static void go(GtkTreeIter selected)
   editor_goto_pos(doc->editor, 0, FALSE);
 }
 
+static void first_child(GtkTreeIter next)
+{
+  GtkTreeIter selected;
+  if(gtk_tree_model_iter_children(model, &selected, &next)) {
+    first_child(selected);
+  }
+  else {
+    go(next);
+  }
+}
+
 static void next_sibling(GtkTreeIter selected)
 {
   GtkTreeIter next, parent;
   next = selected;
   if(gtk_tree_model_iter_next(model, &next))
   {
-    if(gtk_tree_model_iter_children(model, &selected, &next)) {
-      go(selected);
-    }
-    else {
-      go(next);
-    }
+    first_child(next);
   }
   else if(gtk_tree_model_iter_parent(model, &parent, &selected)) {
     next_sibling(parent);
