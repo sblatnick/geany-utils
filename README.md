@@ -27,3 +27,9 @@
   #start instance of geany with it's own config:
     geany -i -c ./
 ```
+
+# Quick Commands for local testing in a new instance
+```bash
+  clear;make doc-panel
+  cp doc-panel.so plugins/;geany -i -c ./ *.c ../geany-1.37.1/src/*.c
+```

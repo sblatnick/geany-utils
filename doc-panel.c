@@ -18,6 +18,7 @@ enum
 
 static void go(GtkTreeIter selected)
 {
+  gtk_tree_view_set_cursor(GTK_TREE_VIEW(tree), gtk_tree_model_get_path(model, &selected), NULL, FALSE);
   GeanyDocument *doc = NULL;
   gtk_tree_model_get(model, &selected, 2, &doc, -1);
   if(! doc) {
@@ -34,15 +35,16 @@ static void next_focus(G_GNUC_UNUSED guint key_id)
     next = selected;
     if(gtk_tree_model_iter_next(model, &next))
     {
-      gtk_tree_view_set_cursor(GTK_TREE_VIEW(tree), gtk_tree_model_get_path(model, &next), NULL, FALSE);
       go(next);
     }
     else if(gtk_tree_model_iter_parent(model, &parent, &selected)) {
       if(gtk_tree_model_iter_next(model, &parent)) {
         if(gtk_tree_model_iter_children(model, &selected, &parent)) {
-          gtk_tree_view_set_cursor(GTK_TREE_VIEW(tree), gtk_tree_model_get_path(model, &selected), NULL, FALSE);
           go(selected);
         }
+      }
+      else {
+        printf("next parent?\n");
       }
     }
   }
@@ -56,15 +58,16 @@ static void prev_focus(G_GNUC_UNUSED guint key_id)
     next = selected;
     if(gtk_tree_model_iter_previous(model, &next))
     {
-      gtk_tree_view_set_cursor(GTK_TREE_VIEW(tree), gtk_tree_model_get_path(model, &next), NULL, FALSE);
       go(next);
     }
     else if(gtk_tree_model_iter_parent(model, &parent, &selected)) {
       if(gtk_tree_model_iter_previous(model, &parent)) {
         if(gtk_tree_model_iter_nth_child(model, &selected, &parent, gtk_tree_model_iter_n_children(model, &parent) - 1)) {
-          gtk_tree_view_set_cursor(GTK_TREE_VIEW(tree), gtk_tree_model_get_path(model, &selected), NULL, FALSE);
           go(selected);
         }
+      }
+      else {
+        printf("prev parent?\n");
       }
     }
   }
@@ -86,7 +89,7 @@ static gboolean init(GeanyPlugin *plugin, gpointer pdata)
     gtk_notebook_page_num(GTK_NOTEBOOK(geany_plugin->geany_data->main_widgets->sidebar_notebook), docs)
   );
   gtk_container_remove(GTK_CONTAINER(geany_plugin->geany_data->main_widgets->sidebar_notebook), GTK_WIDGET(docs));
-  
+
   hpaned = gtk_paned_new(GTK_ORIENTATION_HORIZONTAL);
   panel = ui_lookup_widget(geany_plugin->geany_data->main_widgets->window, "hpaned1");
   editor = gtk_paned_get_child2(GTK_PANED(panel));
@@ -97,15 +100,15 @@ static gboolean init(GeanyPlugin *plugin, gpointer pdata)
   gtk_paned_pack1(GTK_PANED(hpaned), GTK_WIDGET(editor), TRUE, TRUE);
 
   gtk_paned_pack2(GTK_PANED(hpaned), GTK_WIDGET(docs), TRUE, TRUE);
-  
+
   gtk_widget_show_all(hpaned);
-  
+
   gtk_widget_realize(geany_plugin->geany_data->main_widgets->window);
   GtkRequisition wmin, wnat;
   gtk_widget_get_preferred_size(GTK_WIDGET(geany_plugin->geany_data->main_widgets->window), &wmin, &wnat);
 
   gtk_paned_set_position(GTK_PANED(hpaned), wnat.width - 250);
-  
+
   GeanyKeyGroup *key_group;
   key_group = plugin_set_key_group(geany_plugin, "quick_find_keyboard_shortcut", KB_GROUP, NULL);
   keybindings_set_item(key_group, KB_DOC_PANEL_NEXT, next_focus, 0, 0, "doc_panel_next", _("Next Document"), NULL);
