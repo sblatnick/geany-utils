@@ -27,49 +27,63 @@ static void go(GtkTreeIter selected)
   editor_goto_pos(doc->editor, 0, FALSE);
 }
 
-static void next_focus(G_GNUC_UNUSED guint key_id)
+static void next_sibling(GtkTreeIter selected)
 {
-  GtkTreeIter selected, next, parent;
-  if (gtk_tree_selection_get_selected(gtk_tree_view_get_selection(GTK_TREE_VIEW(tree)), NULL, &selected))
+  GtkTreeIter next, parent;
+  next = selected;
+  if(gtk_tree_model_iter_next(model, &next))
   {
-    next = selected;
-    if(gtk_tree_model_iter_next(model, &next))
-    {
+    if(gtk_tree_model_iter_children(model, &selected, &next)) {
+      go(selected);
+    }
+    else {
       go(next);
     }
-    else if(gtk_tree_model_iter_parent(model, &parent, &selected)) {
-      if(gtk_tree_model_iter_next(model, &parent)) {
-        if(gtk_tree_model_iter_children(model, &selected, &parent)) {
-          go(selected);
-        }
-      }
-      else {
-        printf("next parent?\n");
-      }
-    }
+  }
+  else if(gtk_tree_model_iter_parent(model, &parent, &selected)) {
+    next_sibling(parent);
+  }
+}
+
+static void next_focus(G_GNUC_UNUSED guint key_id)
+{
+  GtkTreeIter selected;
+  if (gtk_tree_selection_get_selected(gtk_tree_view_get_selection(GTK_TREE_VIEW(tree)), NULL, &selected))
+  {
+    next_sibling(selected);
+  }
+}
+
+static void last_child(GtkTreeIter next)
+{
+  GtkTreeIter selected;
+  if(gtk_tree_model_iter_nth_child(model, &selected, &next, gtk_tree_model_iter_n_children(model, &next) - 1)) {
+    last_child(selected);
+  }
+  else {
+    go(next);
+  }
+}
+
+static void prev_sibling(GtkTreeIter selected)
+{
+  GtkTreeIter next, parent;
+  next = selected;
+  if(gtk_tree_model_iter_previous(model, &next))
+  {
+    last_child(next);
+  }
+  else if(gtk_tree_model_iter_parent(model, &parent, &selected)) {
+    prev_sibling(parent);
   }
 }
 
 static void prev_focus(G_GNUC_UNUSED guint key_id)
 {
-  GtkTreeIter selected, next, parent;
+  GtkTreeIter selected;
   if (gtk_tree_selection_get_selected(gtk_tree_view_get_selection(GTK_TREE_VIEW(tree)), NULL, &selected))
   {
-    next = selected;
-    if(gtk_tree_model_iter_previous(model, &next))
-    {
-      go(next);
-    }
-    else if(gtk_tree_model_iter_parent(model, &parent, &selected)) {
-      if(gtk_tree_model_iter_previous(model, &parent)) {
-        if(gtk_tree_model_iter_nth_child(model, &selected, &parent, gtk_tree_model_iter_n_children(model, &parent) - 1)) {
-          go(selected);
-        }
-      }
-      else {
-        printf("prev parent?\n");
-      }
-    }
+    prev_sibling(selected);
   }
 }
 
