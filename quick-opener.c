@@ -4,11 +4,11 @@
 GeanyData *geany_data;
 GeanyPlugin *geany_plugin;
 
-static GtkWidget *dialog, *scrollable, *tree, *button_folder_picker;
+static GtkWidget *dialog, *scrollable, *tree, *button_folder_picker, *button_folder_picker2;
 static GtkTreeStore *list;
 static GtkTreeIter row;
 static gint row_pos;
-static gchar *base_directory, *opener_path;
+static gchar *base_directory, *opener_path, *opener_path2;
 static const gint MAX_LIST = 20;
 static GtkAdjustment *adjustment;
 static GtkTreePath *first, *second;
@@ -33,6 +33,7 @@ enum
 {
   KB_QUICK_OPEN_PROJECT,
   KB_QUICK_OPEN,
+  KB_QUICK_OPEN2,
   COUNT_KB
 };
 
@@ -245,7 +246,7 @@ static void quick_project_open()
   quick_opener();
 }
 
-static void quick_open()
+static void quick_open(gchar *opener_path)
 {
   base_directory = opener_path;
   quick_opener();
@@ -258,7 +259,12 @@ static void quick_open_project_menu_callback(GtkMenuItem *menuitem, gpointer gda
 
 static void quick_open_menu_callback(GtkMenuItem *menuitem, gpointer gdata)
 {
-  quick_open();
+  quick_open(opener_path);
+}
+
+static void quick_open2_menu_callback(GtkMenuItem *menuitem, gpointer gdata)
+{
+  quick_open(opener_path2);
 }
 
 static void quick_open_project_keyboard_shortcut(G_GNUC_UNUSED guint key_id)
@@ -268,7 +274,12 @@ static void quick_open_project_keyboard_shortcut(G_GNUC_UNUSED guint key_id)
 
 static void quick_open_keyboard_shortcut(G_GNUC_UNUSED guint key_id)
 {
-  quick_open();
+  quick_open(opener_path);
+}
+
+static void quick_open2_keyboard_shortcut(G_GNUC_UNUSED guint key_id)
+{
+  quick_open(opener_path2);
 }
 
 static void setup_regex()
@@ -291,6 +302,7 @@ static gboolean init(GeanyPlugin *plugin, gpointer pdata)
   pathRegexSetting.text = utils_get_setting_string(config, "main", "path-regex", pathRegexSetting.DEFAULT);
   nameRegexSetting.text = utils_get_setting_string(config, "main", "name-regex", nameRegexSetting.DEFAULT);
   opener_path = utils_get_setting_string(config, "main", "path", home);
+  opener_path2 = utils_get_setting_string(config, "main", "path2", home);
 
   setup_regex();
 
@@ -300,6 +312,8 @@ static gboolean init(GeanyPlugin *plugin, gpointer pdata)
     "quick_open_project_keyboard_shortcut", _("Quick Open Project Files..."), NULL);
   keybindings_set_item(key_group, KB_QUICK_OPEN, quick_open_keyboard_shortcut, 0, 0,
     "quick_open_keyboard_shortcut", _("Quick Open..."), NULL);
+  keybindings_set_item(key_group, KB_QUICK_OPEN2, quick_open2_keyboard_shortcut, 0, 0,
+    "quick_open2_keyboard_shortcut", _("Quick Open 2..."), NULL);
 
   quick_open_project_menu = gtk_menu_item_new_with_mnemonic("Quick Open Project Files...");
   gtk_widget_show(quick_open_project_menu);
@@ -323,10 +337,12 @@ static void dialog_response(GtkDialog *configure, gint response, gpointer user_d
     pathRegexSetting.text = g_strdup(gtk_entry_get_text(GTK_ENTRY(pathRegexSetting.entry)));
     nameRegexSetting.text = g_strdup(gtk_entry_get_text(GTK_ENTRY(nameRegexSetting.entry)));
     opener_path = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(button_folder_picker));
+    opener_path2 = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(button_folder_picker2));
     g_key_file_set_boolean(config, "main", "include-path", include_path);
     g_key_file_set_string(config, "main", "path-regex", pathRegexSetting.text);
     g_key_file_set_string(config, "main", "name-regex", nameRegexSetting.text);
     g_key_file_set_string(config, "main", "path", opener_path);
+    g_key_file_set_string(config, "main", "path2", opener_path2);
     
     g_regex_unref(pathRegexSetting.regex);
     g_regex_unref(nameRegexSetting.regex);
@@ -386,6 +402,15 @@ static GtkWidget* configure(GeanyPlugin *plugin, GtkDialog *configure, gpointer 
     _("Choose a path"), GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER);
   gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(button_folder_picker), opener_path);
   gtk_box_pack_start(GTK_BOX(vbox), button_folder_picker, FALSE, FALSE, 2);
+
+  GtkWidget *label_default2 = gtk_label_new(_("Select a based directory for the non-project opener 2:"));
+  gtk_label_set_xalign(GTK_LABEL(label_default2), 0);
+  gtk_label_set_yalign(GTK_LABEL(label_default2), 0);
+  gtk_box_pack_start(GTK_BOX(vbox), label_default2, FALSE, FALSE, 2);
+  button_folder_picker2 = gtk_file_chooser_button_new(
+    _("Choose a path"), GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER);
+  gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(button_folder_picker2), opener_path2);
+  gtk_box_pack_start(GTK_BOX(vbox), button_folder_picker2, FALSE, FALSE, 2);
 
   gtk_widget_show_all(vbox);
 
