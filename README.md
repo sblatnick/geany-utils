@@ -26,6 +26,8 @@
     cp doc-panel.so plugins/
   #start instance of geany with it's own config:
     geany -i -c ./
+  #install one plugin once ready:
+    cp doc-panel.so ~/.config/geany/plugins/
 ```
 
 # Quick Commands for local testing in a new instance

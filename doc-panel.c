@@ -97,13 +97,15 @@ static gboolean init(GeanyPlugin *plugin, gpointer pdata)
 {
   geany_plugin = plugin;
 
-  docs = ui_lookup_widget(geany_plugin->geany_data->main_widgets->window, "scrolledwindow7");
+  docs = ui_lookup_widget(geany_plugin->geany_data->main_widgets->window, "vbox47");
   tree = ui_lookup_widget(geany_plugin->geany_data->main_widgets->window, "treeview6");
   model = gtk_tree_view_get_model(GTK_TREE_VIEW(tree));
+  //printf("gtk_notebook_get_tab_label\n");
   label = gtk_notebook_get_tab_label(
     GTK_NOTEBOOK(geany_plugin->geany_data->main_widgets->sidebar_notebook),
     docs
   );
+  //printf("after\n");
   gtk_notebook_remove_page(
     GTK_NOTEBOOK(geany_plugin->geany_data->main_widgets->sidebar_notebook),
     gtk_notebook_page_num(GTK_NOTEBOOK(geany_plugin->geany_data->main_widgets->sidebar_notebook), docs)
@@ -130,7 +132,7 @@ static gboolean init(GeanyPlugin *plugin, gpointer pdata)
   gtk_paned_set_position(GTK_PANED(hpaned), wnat.width - 250);
 
   GeanyKeyGroup *key_group;
-  key_group = plugin_set_key_group(geany_plugin, "quick_find_keyboard_shortcut", KB_GROUP, NULL);
+  key_group = plugin_set_key_group(geany_plugin, "doc_panel_keyboard_shortcut", KB_GROUP, NULL);
   keybindings_set_item(key_group, KB_DOC_PANEL_NEXT, next_focus, 0, 0, "doc_panel_next", _("Next Document"), NULL);
   keybindings_set_item(key_group, KB_DOC_PANEL_PREV, prev_focus, 0, 0, "doc_panel_prev", _("Prev Document"), NULL);
 }
